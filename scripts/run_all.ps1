@@ -18,14 +18,31 @@ $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
 
 if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
-    throw "未找到 conda。请先安装 Miniconda/Miniforge 并执行 'conda init pwsh'，再运行: conda env create -f environment.yml"
+    $candidates = @(
+        "$env:USERPROFILE\miniconda3",
+        "$env:USERPROFILE\miniforge3",
+        "$env:USERPROFILE\anaconda3",
+        "$env:LOCALAPPDATA\miniconda3",
+        "$env:LOCALAPPDATA\miniforge3",
+        "C:\ProgramData\miniconda3",
+        "C:\ProgramData\anaconda3"
+    )
+    foreach ($c in $candidates) {
+        if (Test-Path "$c\Scripts\conda.exe") {
+            $env:PATH = "$c\Scripts;$c\condabin;$c;$env:PATH"
+            break
+        }
+    }
 }
+if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
+    throw "未找到 conda。请先安装 Miniconda/Miniforge 并执行 'conda init powershell'，再运行: conda env create -f environment.yml"
+}
+$env:PYTHONNOUSERSITE = '1'
+$env:PYTHONUTF8 = '1'
 $envs = conda env list | Out-String
 if ($envs -notmatch "(?m)^\s*$([regex]::Escape($EnvName))\s") {
     throw "conda 环境 '$EnvName' 不存在。请先执行: conda env create -f environment.yml"
 }
-
-$env:PYTHONUTF8 = '1'
 $steps = [ordered]@{
     pipeline = 'src/pipeline.py'
     charts   = 'src/charts.py'

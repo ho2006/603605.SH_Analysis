@@ -98,52 +98,12 @@ def chart_1_growth_truth(df: pd.DataFrame) -> None:
         horizontal_spacing=0.14,
     )
 
-    # 左图：堆叠柱状图（扣非净利润 + 非经常性损益）+ 营收折线
+    # 左图：堆叠柱状图（扣非净利润 + 非经常性损益）+ 营收折线；右图：增速背离分组柱状图
     periods = proya["period"].tolist()
-    fig.add_trace(go.Bar(
-        x=periods, y=proya["deducted_np"], name="扣非归母净利润（亿元）",
-        marker_color=C_NAVY, text=[f"{v:.2f}" for v in proya["deducted_np"]], textposition="inside",
-        textfont=dict(color="white", size=10),
-    ), row=1, col=1, secondary_y=False)
-
-    fig.add_trace(go.Bar(
-        x=periods, y=proya["non_recurring_np"], name="非经常性损益（2026含4.45亿重估）",
-        marker_color=C_GOLD, text=[f"+{v:.2f}" if v >= 0.4 else "" for v in proya["non_recurring_np"]],
-        textposition="inside", textfont=dict(color="white", size=10),
-    ), row=1, col=1, secondary_y=False)
-
-    fig.add_trace(go.Scatter(
-        x=periods, y=proya["revenue"], name="营业收入（右轴，亿元）",
-        mode="lines+markers+text", line=dict(color=C_BLUE, width=2.8), marker=dict(size=7),
-        text=[f"{v:.1f}" for v in proya["revenue"]],
-        textposition=["top center", "top center", "top center", "top center", "bottom center"],
-        textfont=dict(color=C_BLUE, size=10),
-    ), row=1, col=1, secondary_y=True)
-
-    # 右图：增速背离对比（2024A, 2025A, 2026Q1-Q3, 2026Q3单季）
     sub_g = proya_all[proya_all["period"].isin(["2024A", "2025A", "2026Q1-Q3", "2026Q3单季"])]
     gp = sub_g["period"].tolist()
-    fig.add_trace(go.Bar(
-        x=gp, y=sub_g["rev_yoy"], name="营收同比(%)",
-        marker_color=C_BLUE, text=[f"{v:+.1f}%" for v in sub_g["rev_yoy"]], textposition="outside",
-        textfont=dict(size=9.5),
-    ), row=1, col=2)
-    fig.add_trace(go.Bar(
-        x=gp, y=sub_g["np_yoy"], name="归母净利同比(%)",
-        marker_color=C_GOLD, text=[f"{v:+.1f}%" for v in sub_g["np_yoy"]], textposition="outside",
-        textfont=dict(size=9.5),
-    ), row=1, col=2)
-    fig.add_trace(go.Bar(
-        x=gp, y=sub_g["dnp_yoy"], name="扣非净利同比(%)",
-        marker_color=C_RED, text=[f"{v:+.1f}%" for v in sub_g["dnp_yoy"]], textposition="outside",
-        textfont=dict(size=9.5, color=C_RED),
-    ), row=1, col=2)
 
-    fig.update_layout(barmode="stack")
-    # 修正右侧子图不受全局 stack 影响：改用独立 trace group/barmode? Plotly 全局 barmode 会影响所有 Bar
-    # 因此改写为：左图使用叠加两个 Bar 时用 offsetgroup=0 + base 控制，全局用 barmode="group"！
-    fig.data = []
-    # 重新用 barmode="group" 精准构造左图堆叠效果与右图分组效果
+    # 使用 barmode="group" + offsetgroup/base 同时实现左图堆叠效果与右图分组效果
     fig.add_trace(go.Bar(
         x=periods, y=proya["deducted_np"], name="扣非归母净利润（亿元）",
         marker_color=C_NAVY, offsetgroup="left_stack",
@@ -402,7 +362,7 @@ def chart_5_eva_goodwill(df: pd.DataFrame) -> None:
 
     fig.update_layout(barmode="group")
     apply_base_layout(fig, "图5  EVA 真实价值穿透：并购虚增账面利润与边际资本价值毁损（2022–2026Q3）",
-                      "注：2026Q1-Q3 会计归母净利12.56亿（+22.46%），但剔除并购泡沫并扣除71.73亿投入资本成本后，EVA仅3.49亿且Q3单季转负（-0.53亿）", height=560)
+                      "注：2026Q1-Q3 会计归母净利12.56亿（+22.46%），但剔除并购泡沫并扣除72.53亿投入资本对应的4.18亿期间资本成本后，EVA仅3.49亿且Q3单季转负（-0.53亿）", height=560)
     fig.update_yaxes(title_text="金额（亿元）", range=[-3.5, 19], row=1, col=1)
     fig.update_yaxes(title_text="资本回报与成本率（%）", range=[0, 29], row=1, col=2)
     fig.update_annotations(font=dict(size=12, color="#1B365D"))
@@ -443,9 +403,9 @@ def chart_6_cashflow_bsc(df: pd.DataFrame, df_bsc: pd.DataFrame) -> None:
     # 右图：BSC 雷达图（对比 珀莱雅2023A, 珀莱雅2026Q1-Q3, 贝泰妮2026Q1-Q3）
     categories = ["财务价值与EVA", "客户与流量效率", "内部运营与<br>单品周期", "研发创新与并购治理"]
     bsc_map = {
-        "珀莱雅 (2023A 黄金增长期)": (C_BLUE, "珀莱雅 2023A（86.3分）"),
-        "珀莱雅 (2026Q1-Q3 并购粉饰期)": (C_RED, "珀莱雅 2026Q1-Q3（52.6分）"),
-        "贝泰妮 (2026Q1-Q3 控费修复期)": (C_TEAL, "贝泰妮 2026Q1-Q3（71.7分）"),
+        "珀莱雅 (2023A 黄金增长期)": (C_BLUE, "珀莱雅 2023A（86.30分）"),
+        "珀莱雅 (2026Q1-Q3 并购粉饰期)": (C_RED, "珀莱雅 2026Q1-Q3（52.60分）"),
+        "贝泰妮 (2026Q1-Q3 控费修复期)": (C_TEAL, "贝泰妮 2026Q1-Q3（71.85分）"),
     }
     for ent, (col, label) in bsc_map.items():
         r = df_bsc[df_bsc["entity"] == ent].iloc[0]
@@ -458,7 +418,7 @@ def chart_6_cashflow_bsc(df: pd.DataFrame, df_bsc: pd.DataFrame) -> None:
         ), row=1, col=2)
 
     apply_base_layout(fig, "图6  现金流与盈利质量评价及平衡计分卡（BSC）四维健康度诊断",
-                      "说明：2026Q1-Q3珀莱雅OCF骤降61.06%至4.67亿元（Q3单季流出4.84亿），净现比跌至0.37，BSC综合评分由86.3分降至52.6分", height=580)
+                      "说明：2026Q1-Q3珀莱雅OCF骤降61.06%至4.67亿元（Q3单季流出4.84亿），净现比跌至0.37，BSC综合评分由86.30分降至52.60分", height=580)
     fig.update_layout(margin=dict(r=78, t=128))
     fig.update_yaxes(title_text="金额（亿元）", range=[-8, 26], row=1, col=1, secondary_y=False)
     fig.update_yaxes(title_text="净现比（倍）", range=[-7, 2.5], showgrid=False, row=1, col=1, secondary_y=True)

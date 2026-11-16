@@ -17,12 +17,10 @@ CNEquity 本地数据湖落地 + DuckDB 持久化 + pandas 财务绩效全指标
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
-import numpy as np
 import pandas as pd
 
 # 引入 CNEquity 域模型契约规范（验证本地数据湖 Schema 与代码格式一致性）
@@ -70,29 +68,29 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
         {
             "symbol": proya_code, "company": "珀莱雅", "period": "2022A", "period_order": 1, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 63.85, "rev_yoy": 37.82, "cogs": 19.35, "gross_margin_rep": 69.70,
-            "selling_exp": 27.86, "admin_exp": 3.27, "rd_exp": 1.28, "fin_exp": -0.39, "interest_exp": 0.16, "tax_exp": 2.02,
+            "selling_exp": 27.86, "admin_exp": 3.27, "rd_exp": 1.28, "fin_exp": -0.41, "interest_exp": 0.16, "tax_exp": 2.23,
             "net_profit_parent": 8.17, "np_yoy": 41.88, "deducted_np": 7.89, "dnp_yoy": 43.80,
             "ma_reval_gain": 0.00, "ocf": 11.11, "ocf_yoy": 33.90, "cash_received": 70.88,
             "total_assets": 57.78, "total_liab": 22.41, "current_assets": 41.47, "current_liab": 14.28,
-            "equity_parent": 35.24, "goodwill": 0.00, "inventory": 6.69, "accounts_receivable": 1.26, "accounts_payable": 6.10,
-            "short_debt": 0.00, "long_debt": 0.00, "bonds_payable": 7.28, "roe_reported": 26.15,
+            "equity_parent": 35.24, "goodwill": 0.00, "inventory": 6.69, "accounts_receivable": 1.02, "accounts_payable": 6.10,
+            "short_debt": 0.00, "long_debt": 0.00, "bonds_payable": 7.28, "roe_reported": 25.95,
             "announce_date": "2023-04-20",
         },
         {
             "symbol": proya_code, "company": "珀莱雅", "period": "2023A", "period_order": 2, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 89.05, "rev_yoy": 39.45, "cogs": 26.77, "gross_margin_rep": 69.93,
-            "selling_exp": 39.72, "admin_exp": 4.55, "rd_exp": 1.74, "fin_exp": -0.36, "interest_exp": 0.18, "tax_exp": 2.65,
+            "selling_exp": 39.72, "admin_exp": 4.55, "rd_exp": 1.74, "fin_exp": -0.59, "interest_exp": 0.18, "tax_exp": 2.65,
             "net_profit_parent": 11.94, "np_yoy": 46.06, "deducted_np": 11.74, "dnp_yoy": 48.91,
             "ma_reval_gain": 0.00, "ocf": 14.69, "ocf_yoy": 32.19, "cash_received": 93.29,
             "total_assets": 73.23, "total_liab": 29.23, "current_assets": 53.67, "current_liab": 23.16,
-            "equity_parent": 43.50, "goodwill": 0.00, "inventory": 5.45, "accounts_receivable": 3.45, "accounts_payable": 7.45,
+            "equity_parent": 43.50, "goodwill": 0.00, "inventory": 7.97, "accounts_receivable": 3.45, "accounts_payable": 7.45,
             "short_debt": 0.00, "long_debt": 0.00, "bonds_payable": 7.53, "roe_reported": 29.94,
             "announce_date": "2024-04-18",
         },
         {
             "symbol": proya_code, "company": "珀莱雅", "period": "2024A", "period_order": 3, "annualize_factor": 1.0, "days_in_period": 365,
-            "revenue": 107.78, "rev_yoy": 21.04, "cogs": 30.82, "gross_margin_rep": 71.39,
-            "selling_exp": 51.61, "admin_exp": 3.66, "rd_exp": 2.10, "fin_exp": -0.29, "interest_exp": 0.31, "tax_exp": 3.04,
+            "revenue": 107.78, "rev_yoy": 21.04, "cogs": 30.84, "gross_margin_rep": 71.39,
+            "selling_exp": 51.61, "admin_exp": 3.66, "rd_exp": 2.10, "fin_exp": -0.36, "interest_exp": 0.31, "tax_exp": 3.04,
             "net_profit_parent": 15.52, "np_yoy": 30.00, "deducted_np": 15.22, "dnp_yoy": 29.60,
             "ma_reval_gain": 0.00, "ocf": 11.07, "ocf_yoy": -24.63, "cash_received": 109.05,
             "total_assets": 75.30, "total_liab": 20.44, "current_assets": 56.13, "current_liab": 14.76,
@@ -103,8 +101,8 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
         {
             "symbol": proya_code, "company": "珀莱雅", "period": "2025A", "period_order": 4, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 105.97, "rev_yoy": -1.68, "cogs": 28.33, "gross_margin_rep": 73.26,
-            "selling_exp": 52.59, "admin_exp": 4.04, "rd_exp": 2.17, "fin_exp": -0.29, "interest_exp": 0.32, "tax_exp": 2.17,
-            "net_profit_parent": 14.98, "np_yoy": -3.48, "deducted_np": 14.73, "dnp_yoy": -3.23,
+            "selling_exp": 52.59, "admin_exp": 4.04, "rd_exp": 2.17, "fin_exp": -0.29, "interest_exp": 0.32, "tax_exp": 3.28,
+            "net_profit_parent": 14.98, "np_yoy": -3.50, "deducted_np": 14.73, "dnp_yoy": -3.23,
             "ma_reval_gain": 0.00, "ocf": 21.93, "ocf_yoy": 98.12, "cash_received": 113.70,
             "total_assets": 84.87, "total_liab": 22.21, "current_assets": 61.36, "current_liab": 13.74,
             "equity_parent": 61.41, "goodwill": 0.00, "inventory": 6.35, "accounts_receivable": 0.70, "accounts_payable": 7.98,
@@ -119,17 +117,17 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
             "ma_reval_gain": 4.45, "ocf": 4.67, "ocf_yoy": -61.06, "cash_received": 84.59,
             "total_assets": 102.56, "total_liab": 33.87, "current_assets": 67.75, "current_liab": 24.69,
             "equity_parent": 63.41, "goodwill": 9.24, "inventory": 11.75, "accounts_receivable": 2.95, "accounts_payable": 10.50,
-            "short_debt": 0.80, "long_debt": 0.00, "bonds_payable": 8.32, "roe_reported": 20.12,
+            "short_debt": 0.80, "long_debt": 0.00, "bonds_payable": 8.32, "roe_reported": 19.05,
             "announce_date": "2026-10-29",
         },
         {
             # 2026Q3单季由2026三季报直接披露及半年报差额推算：
-            # 2026H1 OCF=9.51亿 -> Q3单季OCF=4.67-9.51=-4.84亿；2026H1 销售费用=28.56亿 -> Q3单季=12.04亿
+            # 2026H1 OCF=9.51亿 -> Q3单季OCF=4.67-9.51=-4.84亿（上年同期Q3单季OCF=-0.95亿，净流出扩大409.47%）；2026H1 销售费用=28.56亿 -> Q3单季=12.04亿
             "symbol": proya_code, "company": "珀莱雅", "period": "2026Q3单季", "period_order": 6, "annualize_factor": 4.0, "days_in_period": 92,
             "revenue": 22.53, "rev_yoy": 29.76, "cogs": 6.81, "gross_margin_rep": 69.78,
-            "selling_exp": 12.04, "admin_exp": 1.46, "rd_exp": 0.51, "fin_exp": 0.01, "interest_exp": 0.09, "tax_exp": 0.45,
+            "selling_exp": 12.04, "admin_exp": 1.45, "rd_exp": 0.51, "fin_exp": 0.01, "interest_exp": 0.09, "tax_exp": 0.45,
             "net_profit_parent": 0.88, "np_yoy": -61.18, "deducted_np": 0.79, "dnp_yoy": -65.20,
-            "ma_reval_gain": 0.00, "ocf": -4.84, "ocf_yoy": -279.26, "cash_received": 25.10,
+            "ma_reval_gain": 0.00, "ocf": -4.84, "ocf_yoy": -409.47, "cash_received": 25.10,
             "total_assets": 102.56, "total_liab": 33.87, "current_assets": 67.75, "current_liab": 24.69,
             "equity_parent": 63.41, "goodwill": 9.24, "inventory": 11.75, "accounts_receivable": 2.95, "accounts_payable": 10.50,
             "short_debt": 0.80, "long_debt": 0.00, "bonds_payable": 8.32, "roe_reported": 1.39,
@@ -140,18 +138,18 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
         {
             "symbol": botanee_code, "company": "贝泰妮", "period": "2022A", "period_order": 1, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 50.14, "rev_yoy": 24.65, "cogs": 12.43, "gross_margin_rep": 75.21,
-            "selling_exp": 20.48, "admin_exp": 3.43, "rd_exp": 2.55, "fin_exp": -0.45, "interest_exp": 0.04, "tax_exp": 1.72,
+            "selling_exp": 20.48, "admin_exp": 3.43, "rd_exp": 2.55, "fin_exp": -0.14, "interest_exp": 0.04, "tax_exp": 1.63,
             "net_profit_parent": 10.51, "np_yoy": 21.82, "deducted_np": 9.54, "dnp_yoy": 17.37,
             "ma_reval_gain": 0.00, "ocf": 7.69, "ocf_yoy": -33.20, "cash_received": 54.68,
-            "total_assets": 67.19, "total_liab": 11.67, "current_assets": 50.10, "current_liab": 10.80,
+            "total_assets": 67.19, "total_liab": 11.17, "current_assets": 50.10, "current_liab": 10.80,
             "equity_parent": 55.52, "goodwill": 0.00, "inventory": 6.71, "accounts_receivable": 2.70, "accounts_payable": 3.20,
-            "short_debt": 0.00, "long_debt": 0.00, "bonds_payable": 0.00, "roe_reported": 20.31,
+            "short_debt": 0.00, "long_debt": 0.00, "bonds_payable": 0.00, "roe_reported": 20.48,
             "announce_date": "2023-03-30",
         },
         {
             "symbol": botanee_code, "company": "贝泰妮", "period": "2023A", "period_order": 2, "annualize_factor": 1.0, "days_in_period": 365,
-            "revenue": 55.22, "rev_yoy": 10.10, "cogs": 14.41, "gross_margin_rep": 73.90,
-            "selling_exp": 26.10, "admin_exp": 4.13, "rd_exp": 3.00, "fin_exp": -0.64, "interest_exp": 0.05, "tax_exp": 1.10,
+            "revenue": 55.22, "rev_yoy": 10.14, "cogs": 14.41, "gross_margin_rep": 73.90,
+            "selling_exp": 26.10, "admin_exp": 4.13, "rd_exp": 3.00, "fin_exp": -0.21, "interest_exp": 0.05, "tax_exp": 1.10,
             "net_profit_parent": 7.57, "np_yoy": -28.02, "deducted_np": 6.18, "dnp_yoy": -35.20,
             "ma_reval_gain": 0.00, "ocf": 6.10, "ocf_yoy": -20.67, "cash_received": 60.03,
             "total_assets": 75.07, "total_liab": 14.91, "current_assets": 49.80, "current_liab": 13.80,
@@ -162,7 +160,7 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
         {
             "symbol": botanee_code, "company": "贝泰妮", "period": "2024A", "period_order": 3, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 57.36, "rev_yoy": 3.87, "cogs": 15.06, "gross_margin_rep": 73.74,
-            "selling_exp": 28.66, "admin_exp": 5.13, "rd_exp": 3.37, "fin_exp": 0.19, "interest_exp": 0.12, "tax_exp": 1.10,
+            "selling_exp": 28.66, "admin_exp": 5.13, "rd_exp": 3.37, "fin_exp": -0.01, "interest_exp": 0.12, "tax_exp": 1.14,
             "net_profit_parent": 5.03, "np_yoy": -33.53, "deducted_np": 2.40, "dnp_yoy": -61.12,
             "ma_reval_gain": 0.00, "ocf": 6.95, "ocf_yoy": 13.80, "cash_received": 62.46,
             "total_assets": 83.04, "total_liab": 21.16, "current_assets": 54.60, "current_liab": 18.20,
@@ -173,18 +171,18 @@ def build_raw_datasets() -> dict[str, pd.DataFrame]:
         {
             "symbol": botanee_code, "company": "贝泰妮", "period": "2025A", "period_order": 4, "annualize_factor": 1.0, "days_in_period": 365,
             "revenue": 53.59, "rev_yoy": -6.57, "cogs": 13.69, "gross_margin_rep": 74.46,
-            "selling_exp": 26.76, "admin_exp": 4.95, "rd_exp": 2.37, "fin_exp": 0.20, "interest_exp": 0.14, "tax_exp": 1.00,
-            "net_profit_parent": 5.06, "np_yoy": 0.59, "deducted_np": 3.56, "dnp_yoy": 48.22,
+            "selling_exp": 26.76, "admin_exp": 4.95, "rd_exp": 2.37, "fin_exp": 0.11, "interest_exp": 0.14, "tax_exp": 1.00,
+            "net_profit_parent": 5.06, "np_yoy": 0.53, "deducted_np": 3.56, "dnp_yoy": 48.22,
             "ma_reval_gain": 0.00, "ocf": 9.77, "ocf_yoy": 40.54, "cash_received": 63.58,
             "total_assets": 83.41, "total_liab": 20.37, "current_assets": 58.68, "current_liab": 15.56,
-            "equity_parent": 61.57, "goodwill": 2.93, "inventory": 5.72, "accounts_receivable": 5.59, "accounts_payable": 3.60,
+            "equity_parent": 61.57, "goodwill": 2.93, "inventory": 5.28, "accounts_receivable": 5.59, "accounts_payable": 3.60,
             "short_debt": 4.81, "long_debt": 0.00, "bonds_payable": 0.00, "roe_reported": 8.20,
             "announce_date": "2026-04-23",
         },
         {
             "symbol": botanee_code, "company": "贝泰妮", "period": "2026Q1-Q3", "period_order": 5, "annualize_factor": 4.0 / 3.0, "days_in_period": 273,
             "revenue": 36.37, "rev_yoy": 4.99, "cogs": 9.22, "gross_margin_rep": 74.65,
-            "selling_exp": 19.48, "admin_exp": 2.91, "rd_exp": 1.88, "fin_exp": 0.16, "interest_exp": 0.11, "tax_exp": 0.65,
+            "selling_exp": 19.48, "admin_exp": 2.91, "rd_exp": 1.88, "fin_exp": 0.16, "interest_exp": 0.11, "tax_exp": 0.60,
             "net_profit_parent": 3.10, "np_yoy": 13.95, "deducted_np": 2.23, "dnp_yoy": 21.38,
             "ma_reval_gain": 0.00, "ocf": 3.17, "ocf_yoy": -28.32, "cash_received": 42.17,
             "total_assets": 79.73, "total_liab": 18.43, "current_assets": 54.55, "current_liab": 13.25,
@@ -392,11 +390,11 @@ def compute_all_metrics() -> dict[str, pd.DataFrame]:
     # --------------------------------------------------------------------------
     # 模块三：EVA（经济增加值）真实价值穿透测算（5.3）
     # EVA = NOPAT - Invested Capital * WACC * (period_fraction)
-    # 穿透原则：剔除并购花知晓带来的一次性公允价值重估非经常性收益，以扣非净利+税后利息+研发调整构建真实 NOPAT；
-    #          投入资本 TC = 归母净资产 + 有息负债（短期借款+长期借款+应付债券），纳入并购新增商誉9.24亿元资本占用。
+    # 穿透原则：剔除并购花知晓带来的一次性公允价值重估非经常性收益，以扣非净利+税后利息构建真实 NOPAT；
+    #          投入资本 TC = 期末归母净资产 + 有息负债（短期借款+长期借款+应付债券），全额纳入并购新增商誉9.24亿元资本占用。
     # WACC 参数设定（参考中国十年期国债收益率Rf=2.10%，市场风险溢价ERP=6.00%，美妆行业Beta=1.05 -> Ke=8.40%；
     #              税前债务成本Kd=3.20%，高新技术企业所得税率15% -> 税后Kd=2.72%）：
-    #              结合资本结构，珀莱雅动态 WACC ≈ 7.90%–8.10%，贝泰妮动态 WACC ≈ 8.05%–8.30%。
+    #              结合资本结构，珀莱雅动态 WACC ≈ 7.43%–7.69%，贝泰妮动态 WACC ≈ 7.87%–8.40%。
     # --------------------------------------------------------------------------
     rf = 0.021
     erp = 0.060
@@ -406,16 +404,14 @@ def compute_all_metrics() -> dict[str, pd.DataFrame]:
 
     df["interest_bearing_debt"] = df["short_debt"] + df["long_debt"] + df["bonds_payable"]
     df["invested_capital"] = df["equity_parent"] + df["interest_bearing_debt"]
-    # 采用期初期末平均投入资本（若为2026Q1-Q3，将投入资本成本按 3/4 年折算以与前三季度 NOPAT 匹配；2026Q3单季按 1/4 年折算）
-    # 为防止期末并购激增资本在平均值中被稀释，同时体现期末并购资本占用效应，采用期中加权投入资本：
-    # 常规年度采用期初期末平均投入资本；2026Q1-Q3 因花知晓自6月起并表，2026Q3单季全额承担9.24亿商誉与并购资金占用
+    # 采用期末投入资本（若为2026Q1-Q3，将投入资本成本按 3/4 年折算以与前三季度 NOPAT 匹配；2026Q3单季按 1/4 年折算）
+    # 以确保期末并购新增的 9.24 亿商誉与并购资金占用不被期初零商誉均值稀释
     df["wacc_pct"] = (
         (df["equity_parent"] / df["invested_capital"]) * ke
         + (df["interest_bearing_debt"] / df["invested_capital"]) * kd_after_tax
     ) * 100.0
 
-    # 真实 NOPAT（还原真实主营经营税后利润）= 扣非归母净利润 + 利息费用*(1-15%) + 研发费用调整项(当期研发的30%视为资本性长效投入净增)
-    # 同时计算含研发调整与严格扣非调整口径，使 EVA 严谨客观
+    # 真实 NOPAT（还原真实主营经营税后利润）= 扣非归母净利润 + 利息费用*(1-15%)
     df["nopat_core"] = df["deducted_np"] + df["interest_exp"] * (1.0 - 0.15)
     df["capital_charge"] = df["invested_capital"] * (df["wacc_pct"] / 100.0) / df["annualize_factor"]
     df["eva"] = df["nopat_core"] - df["capital_charge"]
@@ -448,7 +444,7 @@ def compute_all_metrics() -> dict[str, pd.DataFrame]:
             "internal_product_score": 86.0,
             "learning_ma_score": 76.0,
             "composite_score": round(0.30 * 92 + 0.25 * 88 + 0.25 * 86 + 0.20 * 76, 2),
-            "key_diagnosis": "大单品矩阵放量+高周转高ROE（29.94%），EVA高达9.39亿，但研发费用率仅1.95%埋下后继隐忧。",
+            "key_diagnosis": "大单品矩阵放量+高周转高ROE（29.94%），EVA高达8.03亿，但研发费用率仅1.95%埋下后继隐忧。",
         },
         {
             "entity": "珀莱雅 (2025A 拐点承压期)",
@@ -475,7 +471,7 @@ def compute_all_metrics() -> dict[str, pd.DataFrame]:
             "internal_product_score": 68.0,
             "learning_ma_score": 72.0,
             "composite_score": round(0.30 * 48 + 0.25 * 55 + 0.25 * 68 + 0.20 * 72, 2),
-            "key_diagnosis": "大促投入失衡与悦江投资对赌承压导致扣非净利探底2.40亿（-61.12%），但研发投入率维持5.87%高位。",
+            "key_diagnosis": "大促投入失衡与悦江投资对赌承压导致扣非净利探底2.40亿（-61.12%），但研发投入率维持5.88%高位。",
         },
         {
             "entity": "贝泰妮 (2026Q1-Q3 控费修复期)",
