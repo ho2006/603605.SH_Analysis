@@ -1,0 +1,22 @@
+# conda 环境定义 —— 所有 Python 实现均通过该环境运行，不直接调用系统 python
+#   创建：  conda env create -f environment.yml
+#   更新：  conda env update -f environment.yml --prune
+#   运行：  conda run -n proya-fin python src/pipeline.py   （或使用 scripts/run_all.ps1）
+name: proya-fin
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy>=2.0
+  - pandas>=2.2
+  - pyarrow>=15
+  - python-duckdb>=1.1
+  - openpyxl>=3.1
+  - plotly>=5.24
+  - python-kaleido>=0.2      # Plotly 静态导出 PNG/SVG（kaleido>=1.0 需本机安装 Chrome/Chromium）
+  - python-docx>=1.1
+  - docxtpl>=0.18
+  - weasyprint>=62           # conda-forge 版本自带 pango/cairo/gobject，Windows 下无需 tools/weasyprint_win
+  - pip:
+      - cnequity==0.24.0     # 仅用于 DATASET_SCHEMAS / format_symbol 契约校验（https://github.com/rootSunc/CNEquity）

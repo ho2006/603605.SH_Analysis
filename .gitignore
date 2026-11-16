@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# 构建中间产物（可由 src/build_reports.py 重新生成）
+build/
+
+# 第三方二进制（WeasyPrint Windows onedir 包，约 32MB）——conda 环境自带 pango/cairo，无需提交
+tools/
+
+# CNEquity 数据湖运行时缓存 / 锁 / 限流状态（可由 cne backfill 重新抓取）
+data/cnequity_lake/
+
+# Office 临时文件
+~$*
+*.tmp
